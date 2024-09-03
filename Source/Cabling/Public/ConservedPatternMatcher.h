@@ -4,13 +4,14 @@
 #include "CoreMinimal.h"
 #include "ActionPatternParams.h"
 #include "FActionPattern.h"
-#include "Skeletonize.h"
 #include "SkeletonTypes.h"
 
+template <typename FKeyType, typename Parent>
 class CABLING_API FConservedInputPatternMatcher
 	{
 		InputStreamKey MyStream; //and may god have mercy on my soul.
 		friend class FArtilleryBusyWorker;
+		Parent* ECS;
 	public:
 		FConservedInputPatternMatcher(InputStreamKey StreamToLink)
 		{
@@ -56,8 +57,8 @@ class CABLING_API FConservedInputPatternMatcher
 		                                //USED TO DEFINE HOW TO SHORTEN ARTILLERYGUNS BY SHORTENING TRAILING or INFIX DELAYS, SUCH AS DELAYED EXPLOSIONS, TRAJECTORIES, OR SPAWNS, TO HIDE LATENCY.
 		                                uint32_t rightTrimFrames,
 		                                uint64_t InputCycleNumber,
-		                                TArray<TPair<ArtilleryTime, FGunKey>>&
-		                                IN_PARAM_REF_TRIPLEBUFFER_LIFECYLEMANAGED
+		                                TArray<TPair<ArtilleryTime, FKeyType>>&
+		                                IN_PARAM_REF_BUFFER_LIFECYLEMANAGED
 		                                //frame's a misnomer, actually.
 		)
 		{
@@ -100,7 +101,7 @@ class CABLING_API FConservedInputPatternMatcher
 								{
 									auto time = Stream->peek(InputCycleNumber)->SentAt;
 									//THIS IS NOT SUPER SAFE. HAHAHAH. YAY.
-									IN_PARAM_REF_TRIPLEBUFFER_LIFECYLEMANAGED.Add(TPair<ArtilleryTime, FGunKey>(
+									IN_PARAM_REF_BUFFER_LIFECYLEMANAGED.Add(TPair<ArtilleryTime, FKeyType>(
 											time,
 											Elem.ToFire)
 									);
