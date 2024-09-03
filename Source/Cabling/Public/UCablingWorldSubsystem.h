@@ -39,8 +39,8 @@ protected:
 	//ULTIMATELY, THESE SHOULD BE THE CURRENT MATCH ID AS BRISTLECONE
 	//SHOULD NOT BE RUNNING OUTSIDE OF A MATCH.
 
-  private:
-	
+  protected:
+	friend class UBristleconeWorldSubsystem;
 
 	// Receiver information
 

@@ -51,16 +51,7 @@ void UCablingWorldSubsystem::Deinitialize() {
 //injection, which appears to be extremely Non-Unreal.
 void UCablingWorldSubsystem::PostInitialize()
 {
-	UBristleconeWorldSubsystem* MySquire = GetTickableGameObjectWorld()->GetSubsystem< UBristleconeWorldSubsystem>();
-	if (MySquire == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("UCablingWorldSubsystem: No Bristlecone subsystem to connect to!"));
-	}
-	MySquire->QueueToSend = CabledThreadControlQueue;
-	//this is a really odd take on the RAII model where it's to the point where FSharedEventRef should NEVER be alloc'd with new.
-	//As is, we know that the event ref objects share the lifecycle of their owners exactly, being alloc'd and dealloced with them.
-	//so we set ours equal to theirs, and the ref count will only drop when we are fully deinit'd
-	controller_runner.WakeTransmitThread = MySquire->WakeSender;
+
 }
 
 void UCablingWorldSubsystem::Tick(float DeltaTime) {
