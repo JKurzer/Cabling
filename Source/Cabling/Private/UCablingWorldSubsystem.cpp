@@ -44,16 +44,6 @@ void UCablingWorldSubsystem::Deinitialize() {
 	Super::Deinitialize();
 }
 
-//once all tickable world subsystems are initialized, this is invoked.
-//we use this to seek out and bind to the bristlecone subsystem.
-//I recommend that you strongly consider generalizing this,
-//but my normal approach would be template typing and initialization
-//injection, which appears to be extremely Non-Unreal.
-void UCablingWorldSubsystem::PostInitialize()
-{
-
-}
-
 void UCablingWorldSubsystem::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 	//UE_LOG(LogTemp, Warning, TEXT("Bristlecone:Subsystem: Subsystem world ticked"));
