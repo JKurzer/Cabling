@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-class FBristleconeModule : public IModuleInterface
+class FCablingModule : public IModuleInterface
 {
 public:
 

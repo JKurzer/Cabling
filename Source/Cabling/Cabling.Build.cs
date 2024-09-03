@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using UnrealBuildTool;
 
-public class Bristlecone : ModuleRules
+public class Cabling : ModuleRules
 {
 
 
@@ -27,21 +27,21 @@ public class Bristlecone : ModuleRules
         string GRDKLatestPath = Environment.GetEnvironmentVariable("GRDKLatest");
         if (GRDKLatestPath != null)
         {
-            System.Console.WriteLine("GRDK is installed but Bristlecone is using our weird pirate version. See GDKDependency dir.");
+            System.Console.WriteLine("GRDK is installed but Cabling is using our weird pirate version. See GDKDependency dir.");
         }
         else
         {
-            System.Console.WriteLine("GRDK is NOT installed but Bristlecone uses the version in GDKDependency dir. This may cause problems.");
+            System.Console.WriteLine("GRDK is NOT installed but Cabling uses the version in GDKDependency dir. This may cause problems.");
         }
         return true; // Bristlecone packs with the relevant stuff because I couldn't stand it anymore.
     }
 
 
-    public Bristlecone(ReadOnlyTargetRules Target) : base(Target)
+    public Cabling(ReadOnlyTargetRules Target) : base(Target)
     {
         PublicIncludePaths.AddRange(
             new string[] {
-                Path.Combine(PluginDirectory,"Source/Bristlecone")
+                Path.Combine(PluginDirectory,"Source/Cabling")
             }
         );
         bool bHasGameInputSupport = HasGameInputSupport(Target);
@@ -51,17 +51,6 @@ public class Bristlecone : ModuleRules
         PublicIncludePaths.Add(gdkpath);
         string gdklibpath = Path.Combine(PluginDirectory, "GDKDependency", "GameKit", "Lib", "amd64", "GameInput.lib");
         PublicAdditionalLibraries.Add(gdklibpath);
-
-        //may also need to add an explicit runtime dependency.
-        // Get the engine path. Ends with "Engine/"
-        string engine_path = EngineDirectory;
-        // Now get the base of UE's modules dir (could also be Developer, Editor, ThirdParty)
-        string src_path = engine_path + "\\Source\\Runtime\\";
-
-        //Don't do this. We need it to avoid having to either patch the engine or rebuild most of sockets or use pointer arithmatic and void*
-        PrivateIncludePaths.Add(src_path + "Sockets\\Private\\BSDSockets\\");
-        PrivateIncludePaths.Add(src_path + "Sockets\\Private\\");
-        PublicAdditionalLibraries.Add("qwave.lib"); // this will need to be fixed. god.
 
 
         PublicDependencyModuleNames.AddRange(new string[] {

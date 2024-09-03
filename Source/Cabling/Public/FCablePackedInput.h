@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "FBristleconePackingSystemShim.h"
+#include "PackingSystemShim.h"
 #include <bitset>
 
 //thanks a lot, unreal! If you don't do ALL of this, you'll hit FP errors and this won't be platform independent.
