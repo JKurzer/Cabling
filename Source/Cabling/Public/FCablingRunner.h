@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "FBristleconePackingSystemShim.h"
+#include "PackingSystemShim.h"
 #include "FCablePackedInput.h"
 #include "BristleconeCommonTypes.h"
 #include <chrono> 
