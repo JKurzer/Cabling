@@ -63,7 +63,7 @@ public class Cabling : ModuleRules
             "Networking",
             "Sockets",
             "Settings",
-            "DeveloperSettings"
+            "DeveloperSettings", "SkeletonKey"
         });
 
         PrivateDependencyModuleNames.AddRange(
@@ -81,7 +81,7 @@ public class Cabling : ModuleRules
                 "Sockets",
                 "Settings",
                 "DeveloperSettings",
-                "NetCommon"
+                "NetCommon", "SkeletonKey"
             });
 
 

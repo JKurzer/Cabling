@@ -237,8 +237,6 @@ public:
 	static const inline ArtIPMKey Name = ArtIPMKey::StickFlick;
 };
 
-namespace Arty
-{
 	namespace IPM
 	{
 
@@ -256,4 +254,4 @@ namespace Arty
 		constexpr const FActionPattern_OnPress StartOfPress;
 		constexpr const CanonPattern GPerPress = &StartOfPress;
 	}
-}
+
