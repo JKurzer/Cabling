@@ -151,8 +151,8 @@ uint32 FCabling::Run()
 	//That's known. Isn't that fun? :) Don't reorder these, by the way.
 	uint32_t lastPollTime = NarrowClock::getSlicedMicrosecondNow();
 	uint32_t lsbTime = NarrowClock::getSlicedMicrosecondNow();
-	constexpr uint32_t sampleHertz = TheCone::CablingSampleHertz;
-	constexpr uint32_t sendHertz = TheCone::BristleconeSendHertz;
+	constexpr uint32_t sampleHertz = Cabling::CablingSampleHertz;
+	constexpr uint32_t sendHertz = Cabling::BristleconeSendHertz;
 	constexpr uint32_t sendHertzFactor = sampleHertz / sendHertz;
 	constexpr uint32_t Period = 1000000 / sampleHertz; //swap to microseconds. standardizing.
 

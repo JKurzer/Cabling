@@ -6,7 +6,7 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "FCablingRunner.h"
 #include "HAL/Runnable.h"
-#include "BristleconeCommonTypes.h"
+#include "CablingCommonTypes.h"
 #include "UCablingWorldSubsystem.generated.h"
 
 
@@ -16,7 +16,7 @@
 
 //This is not a full dispatch, as it possesses no ECS like capabilities to expose.
 UCLASS()
-class  BRISTLECONE_API UCablingWorldSubsystem : public UTickableWorldSubsystem
+class  CABLING_API UCablingWorldSubsystem : public UTickableWorldSubsystem
 {
 	GENERATED_BODY()
 public:
@@ -24,7 +24,7 @@ public:
 	//and slightly unsafe operation. calling it outside of postinitialize
 	//or beginplay is not recommended. instead, clients should get a reference
 	//and change what queue they listen on rather than replacing this queue.
-	void DestructiveChangeLocalOutboundQueue(TheCone::SendQueue NewlyAllocatedQueue); 
+	void DestructiveChangeLocalOutboundQueue(Cabling::SendQueue NewlyAllocatedQueue); 
 
 protected:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -45,7 +45,7 @@ protected:
 	// Receiver information
 
 	FCabling controller_runner;
-	TheCone::SendQueue GameThreadControlQueue;
-	TheCone::SendQueue CabledThreadControlQueue;
+	Cabling::SendQueue GameThreadControlQueue;
+	Cabling::SendQueue CabledThreadControlQueue;
 	TUniquePtr<FRunnableThread> controller_thread;
 };

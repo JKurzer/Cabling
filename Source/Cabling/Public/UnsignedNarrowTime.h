@@ -6,7 +6,7 @@
 
 //centralizing the typedefs to avoid circularized header includes
 //and further ease swapping over between 8 and 16 byte modes. IWYU!
-class BRISTLECONE_API NarrowClock {
+class CABLING_API NarrowClock {
 public:
 	static uint32_t getSlicedMicrosecondNow()
 	{

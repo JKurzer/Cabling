@@ -4,7 +4,6 @@
 #include "UCablingWorldSubsystem.h"
 
 //THIS IS A GENERALLY UNDESIRABLE INCLUDE PATTERN
-#include "UBristleconeWorldSubsystem.h"
 
 //Goal: Cabling is a thin threaded layer that pulls input from the controller, and provides it to: 
 // the Cabling world subsystem for making accessible to the game thread...
@@ -12,7 +11,7 @@
 // a threadsafe queue supporting a single consuming thread, then triggers an event.
 
 //Destructive method for switching lifecycle and consumer ownership for the "gamethread" queue.
-void UCablingWorldSubsystem::DestructiveChangeLocalOutboundQueue(SendQueue NewlyAllocatedQueue)
+void UCablingWorldSubsystem::DestructiveChangeLocalOutboundQueue(Cabling::SendQueue NewlyAllocatedQueue)
 {
 	GameThreadControlQueue = NewlyAllocatedQueue;
 	controller_runner.GameThreadControlQueue = NewlyAllocatedQueue;

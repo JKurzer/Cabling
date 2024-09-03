@@ -6,7 +6,6 @@
 #include "UObject/UnrealType.h"
 #include "Engine/DataTable.h"
 #include "FMasks.h"
-#include "AttributeSet.h"
 #include <bitset>
 #include "Containers/CircularBuffer.h"
 #include "FActionBitMask.generated.h"
