@@ -30,9 +30,9 @@ public:
 	virtual bool Init() override;
 	bool EvaluateAndAttemptSend(bool sent, int seqNumber, uint64_t& priorReading, uint64_t& currentRead,
 	                       uint32_t sendHertzFactor);
-	bool KeyboardStateMachine(IGameInputReading* reading, bool sent, int seqNumber, uint64_t& priorReading, uint64_t& currentRead,
+	bool KeyboardStateMachine(IGameInputReading* reading, bool sent, int seqNumber, uint64_t& priorReading, 
 	              uint32_t sendHertzFactor);
-	bool GamepadStateMachine(IGameInputReading* reading, bool sent, int seqNumber, uint64_t& priorReading, uint64_t& currentRead, const uint32_t
+	bool GamepadStateMachine(IGameInputReading* reading, bool sent, int seqNumber, uint64_t& priorReading, const uint32_t
 	             sendHertzFactor);
 	virtual uint32 Run() override;
 	virtual void Exit() override;

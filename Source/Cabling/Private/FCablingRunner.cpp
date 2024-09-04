@@ -41,7 +41,7 @@ bool FCabling::EvaluateAndAttemptSend(bool sent, int seqNumber, uint64_t& priorR
 }
 
 bool FCabling::KeyboardStateMachine(IGameInputReading* reading, bool sent, int seqNumber, uint64_t& priorReading,
-                                    uint64_t& currentRead, const uint32_t sendHertzFactor)
+	const uint32_t sendHertzFactor)
 {
 	uint32_t keyCount = reading->GetKeyCount();
 	bool retvalue = sent;
@@ -83,7 +83,7 @@ bool FCabling::KeyboardStateMachine(IGameInputReading* reading, bool sent, int s
 	boxing.ry = (uint32_t)boxing.IntegerizedStick(0.0);
 	boxing.buttons = 0; // temporarily no buttons
 	boxing.events = 0;
-	currentRead = boxing.PackImpl();
+	uint64_t currentRead = boxing.PackImpl();
 	//don't check events because we may set an event to indicate that we're on keeb input....
 	if(boxing.HasAnyStickData() || boxing.buttons != 0)
 	{
@@ -95,7 +95,6 @@ bool FCabling::KeyboardStateMachine(IGameInputReading* reading, bool sent, int s
 
 //Sets Sent if prip
 bool FCabling::GamepadStateMachine(IGameInputReading* reading, bool sent, int seqNumber, uint64_t& priorReading,
-                                   uint64_t& currentRead,
                                    const uint32_t sendHertzFactor)
 {
 	// If no device has been assigned to g_gamepad yet, set it
@@ -118,7 +117,7 @@ bool FCabling::GamepadStateMachine(IGameInputReading* reading, bool sent, int se
 	boxing.buttons.set(12, (state.leftTrigger > 0.55)); //check the bitfield.
 	boxing.buttons.set(13, (state.rightTrigger > 0.55));
 	boxing.events = 0;
-	currentRead = boxing.PackImpl();
+	uint64_t currentRead = boxing.PackImpl();
 
 	//because we deadzone and integerize, we actually have a pretty good idea
 	//of when input actually changes. 2048 positions for the stick along each axis
@@ -146,7 +145,6 @@ uint32 FCabling::Run()
 	uint64_t priorReadingKeyboard = 0;
 
 	uint64_t priorReadingGamepad = 0;
-	uint64_t currentRead = 0;
 	//Hi! Jake here! Reminding you that this will CYCLE
 	//That's known. Isn't that fun? :) Don't reorder these, by the way.
 	uint32_t lastPollTime = NarrowClock::getSlicedMicrosecondNow();
@@ -188,15 +186,14 @@ uint32 FCabling::Run()
 				gameInputSpunUp = GameInputCreate(&g_gameInput);
 			}
 
-			//Sent is checked & managed deep in the meat. this state machine needs a refactor badly.
+			IGameInputDevice* keyboard = nullptr;
 			if (g_gameInput &&
-				SUCCEEDED(g_gameInput->GetCurrentReading(GameInputKindKeyboard, nullptr, &reading)))
+				SUCCEEDED(g_gameInput->GetCurrentReading(GameInputKindKeyboard, keyboard, &reading)))
 			{
 				//if we don't have a WASD input, we don't send, and we'll check the controller next.
 				sent = KeyboardStateMachine(reading, sent, seqNumber, priorReadingKeyboard, currentRead, sendHertzFactor);
 				reading->Release();
 			}
-
 			if (g_gameInput &&
 				SUCCEEDED(g_gameInput->GetCurrentReading(GameInputKindGamepad, g_gamepad, &reading)))
 			{
@@ -204,7 +201,7 @@ uint32 FCabling::Run()
 				{
 					reading->GetDevice(&g_gamepad);
 				}
-				sent = GamepadStateMachine(reading, sent, seqNumber, priorReadingGamepad, currentRead, sendHertzFactor);
+				sent = GamepadStateMachine(reading, sent, seqNumber, priorReadingGamepad, sendHertzFactor);
 				reading->Release();
 			}
 			else if (g_gamepad != nullptr)
