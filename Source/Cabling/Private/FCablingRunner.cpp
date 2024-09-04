@@ -54,26 +54,29 @@ bool FCabling::KeyboardStateMachine(IGameInputReading* reading, bool sent, int s
 
 	for (uint32_t i = 0; i < keyCount; i++)
 	{
-		// A
-		if (states[i].codePoint == 65)
-		{
-			xMagnitude -= 1.0;
-		}
-		// D
-		if (states[i].codePoint == 68)
-		{
-			xMagnitude += 1.0;
-		}
-		// S
-		if (states[i].codePoint == 83)
-		{
-			yMagnitude -= 1.0;
-		}
+		//https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 		// W
-		if (states[i].codePoint == 87)
+		if (states[i].codePoint == 0x57)
 		{
 			yMagnitude += 1.0;
 		}
+		// A
+		if (states[i].virtualKey == 0x41)
+		{
+			xMagnitude -= 1.0;
+		}
+		// S
+		if (states[i].codePoint == 0x53)
+		{
+			yMagnitude -= 1.0;
+		}
+		// D
+		if (states[i].codePoint == 0x44)
+		{
+			xMagnitude += 1.0;
+		}
+
+
 	}
 
 	FCableInputPacker boxing;
@@ -191,7 +194,7 @@ uint32 FCabling::Run()
 				SUCCEEDED(g_gameInput->GetCurrentReading(GameInputKindKeyboard, keyboard, &reading)))
 			{
 				//if we don't have a WASD input, we don't send, and we'll check the controller next.
-				sent = KeyboardStateMachine(reading, sent, seqNumber, priorReadingKeyboard, currentRead, sendHertzFactor);
+				sent = KeyboardStateMachine(reading, sent, seqNumber, priorReadingKeyboard, sendHertzFactor);
 				reading->Release();
 			}
 			if (g_gameInput &&

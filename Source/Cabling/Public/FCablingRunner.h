@@ -8,7 +8,7 @@
 THIRD_PARTY_INCLUDES_START
 #include "Microsoft/AllowMicrosoftPlatformTypes.h"
 #include "Microsoft/HideMicrosoftPlatformTypes.h"
-
+#include <Winuser.h>
 #include <GameInput.h>
 THIRD_PARTY_INCLUDES_END
 #include "Containers/CircularQueue.h"
