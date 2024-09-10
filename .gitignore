@@ -55,6 +55,7 @@ Build/*
 # Whitelist PakBlacklist-<BuildConfiguration>.txt files
 !Build/*/
 Build/*/**
+!GDKDependency/**
 !Build/*/PakBlacklist*.txt
 
 # Don't ignore icon files in Build
