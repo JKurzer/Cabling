@@ -23,8 +23,7 @@ bool FCabling::Init()
 }
 
 
-bool FCabling::SendNew(bool sent, int seqNumber, uint64_t priorReading, uint64_t currentRead,
-                                      const uint32_t sendHertzFactor)
+bool FCabling::SendNew(bool sent, uint64_t priorReading, uint64_t currentRead)
 {
 	if (
 		(!sent) && (currentRead != priorReading)
@@ -58,18 +57,17 @@ bool FCabling::SendIfWindowEdge(bool sent, int seqNumber, uint64_t currentRead,
 	return sent;
 }
 
-uint64_t FCabling::KeyboardState(IGameInputReading* reading)
+uint64_t FCabling::FromKeyboardState(uint32_t keyCount, GameInputKeyState (&states)[16])
 {
-	uint32_t keyCount = reading->GetKeyCount();
-	//if you hold down more than 16 keys, you need help or you're using macros.
-	GameInputKeyState states[16];
-	reading->GetKeyState(keyCount, states);
-
 	double xMagnitude = 0.0;
 	double yMagnitude = 0.0;
 
 	for (uint32_t i = 0; i < keyCount; i++)
 	{
+		if(states[i].codePoint == 0 && states[i].scanCode == 0)
+		{
+			break; //0,0 is indicates end of valid data per api doc.
+		}
 		//https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 		// W
 		if (states[i].codePoint == 0x57)
@@ -105,16 +103,18 @@ uint64_t FCabling::KeyboardState(IGameInputReading* reading)
 	return currentRead;
 }
 
-//Sets Sent if prip
-uint64_t FCabling::GamepadState(IGameInputReading* reading)
+uint64_t FCabling::KeyboardState(IGameInputReading* reading, GameInputKeyState (&states)[16])
 {
-	// If no device has been assigned to g_gamepad yet, set it
-	// to the first device we receive input from. (This must be
-	// the one the player is using because it's generating input.)
+	uint32_t keyCount = reading->GetKeyCount();
+	//if you hold down more than 16 keys, you need help or you're using macros.
+	;
+	reading->GetKeyState(keyCount, states);
 
-	// Retrieve the fixed-format gamepad state from the reading.
-	GameInputGamepadState state;
-	reading->GetGamepadState(&state);
+	return FromKeyboardState(keyCount, states);
+}
+
+uint64_t FCabling::FromGamePadState(GameInputGamepadState state)
+{
 	FCableInputPacker boxing;
 	//very fun story. unless you explicitly import and use std::bitset
 	//the wrong thing happens here. I'm not going to speculate on why, because
@@ -139,6 +139,19 @@ uint64_t FCabling::GamepadState(IGameInputReading* reading)
 	return currentRead;
 }
 
+//Sets Sent if prip
+uint64_t FCabling::GamepadState(IGameInputReading* reading)
+{
+	// If no device has been assigned to g_gamepad yet, set it
+	// to the first device we receive input from. (This must be
+	// the one the player is using because it's generating input.)
+
+	// Retrieve the fixed-format gamepad state from the reading.
+	GameInputGamepadState state;
+	reading->GetGamepadState(&state);
+	return FromGamePadState(state);
+}
+
 //this is based directly on the gameinput sample code.
 uint32 FCabling::Run()
 {
@@ -146,6 +159,7 @@ uint32 FCabling::Run()
 	HRESULT gameInputSpunUp = GameInputCreate(&g_gameInput);
 	IGameInputDevice* g_gamepad = nullptr;
 	IGameInputReading* reading;
+	GameInputKeyState states[16] = {{0,0,0,false}}; //the first 0,0 indicates the end of valid data.
 	bool Sent = false;
 	//TODO: why does this seem to need to be an int? I'm assuming something about type 64/32 coercion or
 	//the mod operator is that I knew when I wrote this code, but I no longer remember and it should get a docs note.
@@ -164,23 +178,12 @@ uint32 FCabling::Run()
 
 
 	constexpr auto HalfStep = std::chrono::microseconds(Period / 2);
+	const uint64_t BlankGamepad = FromGamePadState(GameInputGamepadState());
+	const uint64_t BlankKeyboard = FromKeyboardState(16, states);
+	
 	//We're using the GameInput lib.
 	//https://learn.microsoft.com/en-us/gaming/gdk/_content/gc/input/overviews/input-overview
 	//https://learn.microsoft.com/en-us/gaming/gdk/_content/gc/input/advanced/input-keyboard-mouse will be fun
-	/*
-	* 
-	* Per the docs:
-	Rather than using GetNextReading to walk through potentially dozens of historical mouse readings and 
-	adding up the deltas, they're accumulated into a virtual positionX and positionY value. From there,
-	deltas are calculated by subtracting the positionX and positionY value from the previous readings that 
-	were obtained. Individual deltas are accessible when iterating through all intermediate readings, or
-	through the accumulated deltas when intermediate readings have been skipped.
-	
-	The positionX and positionY values are the sum of all movement deltas.
-	These values don't correlate with screen-space coordinates in any way. 
-	The accumulated delta value is only for the mouse events that a process receives while it has input focus.
-	*/
-
 	//https://handmade.network/forums/t/8710-using_microsoft_gameinput_api_with_multiple_controllers#29361
 	//Looks like PS4/PS5 won't be too bad, just gotta watch out for Fun Device ID changes.
 	while (running)
@@ -197,14 +200,14 @@ uint32 FCabling::Run()
 			
 			{
 				IGameInputDevice* keyboard = nullptr;
-				uint64_t KeyboardCurrentRead = 0;
-				uint64_t GamepadCurrentRead = 0;
+				uint64_t KeyboardCurrentRead = BlankKeyboard;
+				uint64_t GamepadCurrentRead = BlankGamepad;
 				//get the keeb...
 				if (g_gameInput &&
 					SUCCEEDED(g_gameInput->GetCurrentReading(GameInputKindKeyboard, keyboard, &reading)))
 				{
 					//if we don't have a WASD input, we don't send, and we'll check the controller next.
-					KeyboardCurrentRead = KeyboardState(reading);
+					KeyboardCurrentRead = KeyboardState(reading, states);
 					reading->Release();
 				}
 				// AND get the gamepad... we need both inputs to check which has data.
@@ -225,10 +228,21 @@ uint32 FCabling::Run()
 					g_gamepad = nullptr;
 				}
 				
-					Sent = SendNew(Sent, SeqNumber, PriorReadingKeyboard, KeyboardCurrentRead, sendHertzFactor);
-					Sent = SendNew(Sent, SeqNumber, PriorReadingGamepad, GamepadCurrentRead, sendHertzFactor);
+				Sent = SendNew(Sent, PriorReadingKeyboard, KeyboardCurrentRead);
+				Sent = SendNew(Sent, PriorReadingGamepad, GamepadCurrentRead);
+				if(GamepadCurrentRead != BlankGamepad)
+				{
 					Sent = SendIfWindowEdge(Sent, SeqNumber, GamepadCurrentRead, sendHertzFactor);
+				}
+				else if (KeyboardCurrentRead != BlankKeyboard)
+				{
 					Sent = SendIfWindowEdge(Sent, SeqNumber, KeyboardCurrentRead, sendHertzFactor);
+				}
+				//this check isn't needed, but removing it creates an instant maintenance hazard.
+				else if (((SeqNumber % sendHertzFactor) != 0)) 
+				{
+					Sent = SendIfWindowEdge(Sent, SeqNumber, BlankGamepad, sendHertzFactor);
+				}
 				
 				//this is performed even if they're null data packets. Godspeed.
 				PriorReadingGamepad = GamepadCurrentRead;
