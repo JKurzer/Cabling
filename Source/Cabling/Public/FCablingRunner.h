@@ -28,12 +28,12 @@ public:
 	virtual ~FCabling() override;
 
 	virtual bool Init() override;
-	bool EvaluateAndAttemptSend(bool sent, int seqNumber, uint64_t& priorReading, uint64_t& currentRead,
+	bool SendNew(bool sent, int seqNumber, uint64_t priorReading, uint64_t currentRead,
 	                       uint32_t sendHertzFactor);
-	bool KeyboardStateMachine(IGameInputReading* reading, bool sent, int seqNumber, uint64_t& priorReading, 
-	              uint32_t sendHertzFactor);
-	bool GamepadStateMachine(IGameInputReading* reading, bool sent, int seqNumber, uint64_t& priorReading, const uint32_t
-	             sendHertzFactor);
+	bool SendIfWindowEdge(bool sent, int seqNumber, uint64_t currentRead,
+					   uint32_t sendHertzFactor);
+	uint64_t KeyboardState(IGameInputReading* reading);
+	uint64_t GamepadState(IGameInputReading* reading);
 	virtual uint32 Run() override;
 	virtual void Exit() override;
 	virtual void Stop() override;
